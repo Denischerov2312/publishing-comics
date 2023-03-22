@@ -1,6 +1,6 @@
 import os
+import random
 from pathlib import Path, PurePosixPath
-from pprint import pprint
 from os.path import split, splitext
 from urllib.parse import unquote, urlsplit
 
@@ -13,23 +13,11 @@ def get_upload_url_on_server(token):
     params = {
         'access_token': token,
         'v': 5.131,
-        'group_id': 40498005,
+        'group_id': 218983997,
         }
     response = requests.get(url, params=params)
     response.raise_for_status()
     return response.json()['response']['upload_url']
-
-
-def get_upload_url_wall(token):
-    url = f'https://api.vk.com/method/photos.saveWallPhoto'
-    params = {
-        'access_token': token,
-        'v': 5.131,
-        'group_id': 40498005,
-        }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response
 
 
 def determine_file_extension(url):
@@ -44,6 +32,7 @@ def download_picture(url, filepath):
     make_directory(filepath)
     with open(filepath, "wb") as file:
         file.write(response.content)
+    return filepath
 
 
 def make_directory(filepath):
@@ -52,15 +41,16 @@ def make_directory(filepath):
     Path(directory_path).mkdir(parents=True, exist_ok=True)
 
 
-def download_comics():
-    url = 'https://xkcd.com/614/info.0.json'
+def download_comic(id):
+    url = f'https://xkcd.com/{id}/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
-    comics = response.json()
-    image_url = comics['img']
-    download_picture(image_url, f'comics{determine_file_extension(image_url)}')
-    return comics
-    
+    comic = response.json()
+    image_url = comic['img']
+    extension = determine_file_extension(image_url)
+    filepath = f"{comic['safe_title']}{extension}"
+    download_picture(image_url, filepath)
+    return comic, filepath
 
 
 def upload_photo(photo_path, upload_url):
@@ -73,9 +63,9 @@ def upload_photo(photo_path, upload_url):
     return response.json()
 
 
-def upload_photo_to_server(path ,token):
+def upload_photo_to_server(filepath ,token):
     upload_url = get_upload_url_on_server(token)
-    with open(path, 'rb') as file:
+    with open(filepath, 'rb') as file:
         files = {
             'photo': file
             }
@@ -84,7 +74,7 @@ def upload_photo_to_server(path ,token):
     return response.json()
 
 
-def upload_photo_to_album(args):
+def upload_photo_to_album(args, token):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     params = {
         'photo': args['photo'],
@@ -92,37 +82,60 @@ def upload_photo_to_album(args):
         'hash': args['hash'],
         'server': args['server'],
         'v': '5.131',
-        'group_id': 40498005,
+        'group_id': 218983997,
     }
     response = requests.post(url, params=params)
     response.raise_for_status()
     return response.json()
 
 
-def main(token):
-    comics = download_comics()
-    response_server = upload_photo_to_server('comics.png', token)
-    response_album = upload_photo_to_album(response_server)
-    
-    owner_id = response_album['response'][0]['owner_id']
-    media_id = response_album['response'][0]['id']
-    attachments = [f'photo{owner_id}_{media_id}']
-
+def upload_photo_to_wall(message, attachments, token):
     url = 'https://api.vk.com/method/wall.post'
-
     params = {
         'v': '5.131',
         'access_token': token,
         'owner_id': -218983997,
         'from_group': 0,
-        'message': comics['alt'],
+        'message': message,
         'attachments': attachments,
     }
     response = requests.post(url, params=params)
     response.raise_for_status()
-    pprint(response.json())
+    return response.json()
 
-    
+
+def get_attachments(response):
+    owner_id = response['response'][0]['owner_id']
+    media_id = response['response'][0]['id']
+    attachments = [f'photo{owner_id}_{media_id}']
+    return attachments
+
+
+def publicate_comic(id, token):
+    comic, filepath = download_comic(id)
+    server_response = upload_photo_to_server(filepath, token)
+    album_response = upload_photo_to_album(server_response, token)
+    attachments = get_attachments(album_response)
+    message = comic['alt']
+    post_response = upload_photo_to_wall(message, attachments, token)
+    os.remove(filepath)
+    return post_response
+
+
+def get_random_comic_id():
+    url = 'https://xkcd.com/info.0.json'
+    response = requests.get(url)
+    response.raise_for_status()
+    total_comics = response.json()['num'] 
+    random_id =  random.randrange(1, total_comics + 1)
+    return random_id
+
+
+def main(token):
+    id = get_random_comic_id()
+    response = publicate_comic(id, token)
+    print(response)
+
 
 if __name__ == '__main__':
     load_dotenv()
