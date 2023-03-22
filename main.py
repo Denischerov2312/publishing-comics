@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 
 def get_upload_url_on_server(token):
-    url = f'https://api.vk.com/method/photos.getWallUploadServer'
+    url = 'https://api.vk.com/method/photos.getWallUploadServer'
     params = {
         'access_token': token,
         'v': 5.131,
@@ -63,7 +63,7 @@ def upload_photo(photo_path, upload_url):
     return response.json()
 
 
-def upload_photo_to_server(filepath ,token):
+def upload_photo_to_server(filepath, token):
     upload_url = get_upload_url_on_server(token)
     with open(filepath, 'rb') as file:
         files = {
@@ -126,8 +126,8 @@ def get_random_comic_id():
     url = 'https://xkcd.com/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
-    total_comics = response.json()['num'] 
-    random_id =  random.randrange(1, total_comics + 1)
+    total_comics = response.json()['num']
+    random_id = random.randrange(1, total_comics + 1)
     return random_id
 
 
