@@ -111,7 +111,7 @@ def get_attachments(response):
     return attachments
 
 
-def publicate_comic(comic_id, token):
+def publish_comic(comic_id, token):
     comic, filepath = download_comic(comic_id)
     server_response = upload_photo_to_server(filepath, token)
     album_response = upload_photo_to_album(server_response, token)
@@ -135,7 +135,7 @@ def main():
     load_dotenv()
     token = os.getenv('ACCESS_TOKEN')
     comic_id = get_random_comic_id()
-    response = publicate_comic(comic_id, token)
+    response = publish_comic(comic_id, token)
     print(response)
 
 
