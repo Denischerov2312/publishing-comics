@@ -131,13 +131,13 @@ def get_random_comic_id():
     return random_id
 
 
-def main(token):
+def main():
+    load_dotenv()
+    token = os.getenv('ACCESS_TOKEN')
     id = get_random_comic_id()
     response = publicate_comic(id, token)
     print(response)
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    token = os.getenv('ACCESS_TOKEN')
-    main(token)
+    main()
