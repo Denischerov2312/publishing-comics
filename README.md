@@ -9,11 +9,12 @@ Python3 должен быть уже установлен.
 pip install -r requirements.txt
 ```
 
-Рядом с самим скриптом надо создать файл `.env` и вписать туда `CLIENT_ID` и `ACCESS_TOKEN`
+Рядом с самим скриптом надо создать файл `.env` и вписать туда `CLIENT_ID`, `ACCESS_TOKEN` и `GROUP_ID`
 Пример:
 ```
 CLIENT_ID=97e702019727020597e70201a054f5c4308997e797e70201f41216935340f9cc7d49e89c
 ACCESS_TOKEN=vk1.a.JeTp8WHEf1RkmZwroJWNXrNgLSuTPEkKZcV8jbeOjudTVQ9Tx2KkdxD4ZsMEjHAz9lBR13Xjy-THLr-
+GROUP_ID=514953997
 ```
 
 Скрипт не имеет аргументов, пример запуска:
