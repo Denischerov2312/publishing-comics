@@ -8,7 +8,7 @@ import requests
 from dotenv import load_dotenv
 
 
-def get_upload_url_on_server(token):
+def get_upload_url(token):
     url = 'https://api.vk.com/method/photos.getWallUploadServer'
     params = {
         'access_token': token,
@@ -64,7 +64,7 @@ def upload_photo(photo_path, upload_url):
 
 
 def upload_photo_to_server(filepath, token):
-    upload_url = get_upload_url_on_server(token)
+    upload_url = get_upload_url(token)
     with open(filepath, 'rb') as file:
         files = {
             'photo': file
