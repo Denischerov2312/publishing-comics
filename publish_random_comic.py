@@ -41,8 +41,8 @@ def make_directory(filepath):
     Path(directory_path).mkdir(parents=True, exist_ok=True)
 
 
-def download_comic(id):
-    url = f'https://xkcd.com/{id}/info.0.json'
+def download_comic(comic_id):
+    url = f'https://xkcd.com/{comic_id}/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
     comic = response.json()
@@ -111,8 +111,8 @@ def get_attachments(response):
     return attachments
 
 
-def publicate_comic(id, token):
-    comic, filepath = download_comic(id)
+def publicate_comic(comic_id, token):
+    comic, filepath = download_comic(comic_id)
     server_response = upload_photo_to_server(filepath, token)
     album_response = upload_photo_to_album(server_response, token)
     attachments = get_attachments(album_response)
@@ -134,8 +134,8 @@ def get_random_comic_id():
 def main():
     load_dotenv()
     token = os.getenv('ACCESS_TOKEN')
-    id = get_random_comic_id()
-    response = publicate_comic(id, token)
+    comic_id = get_random_comic_id()
+    response = publicate_comic(comic_id, token)
     print(response)
 
 
