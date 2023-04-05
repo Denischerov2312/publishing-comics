@@ -29,16 +29,9 @@ def determine_file_extension(url):
 def download_picture(url, filepath):
     response = requests.get(url)
     response.raise_for_status()
-    make_directory(filepath)
     with open(filepath, "wb") as file:
         file.write(response.content)
     return filepath
-
-
-def make_directory(filepath):
-    path = PurePosixPath(filepath)
-    directory_path = list(path.parents)[0]
-    Path(directory_path).mkdir(parents=True, exist_ok=True)
 
 
 def download_comic(comic_id):
