@@ -8,12 +8,12 @@ import requests
 from dotenv import load_dotenv
 
 
-def get_upload_url(token):
+def get_upload_url(token, group_id):
     url = 'https://api.vk.com/method/photos.getWallUploadServer'
     params = {
         'access_token': token,
         'v': 5.131,
-        'group_id': 218983997,
+        'group_id': group_id,
         }
     response = requests.get(url, params=params)
     response.raise_for_status()
@@ -63,8 +63,8 @@ def upload_photo(photo_path, upload_url):
     return response.json()
 
 
-def upload_photo_to_server(filepath, token):
-    upload_url = get_upload_url(token)
+def upload_photo_to_server(filepath, token, group_id):
+    upload_url = get_upload_url(token, group_id)
     with open(filepath, 'rb') as file:
         files = {
             'photo': file
@@ -74,7 +74,7 @@ def upload_photo_to_server(filepath, token):
     return response.json()
 
 
-def upload_photo_to_album(args, token):
+def upload_photo_to_album(args, token, group_id):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     params = {
         'photo': args['photo'],
@@ -82,7 +82,7 @@ def upload_photo_to_album(args, token):
         'hash': args['hash'],
         'server': args['server'],
         'v': '5.131',
-        'group_id': 218983997,
+        'group_id': group_id,
     }
     response = requests.post(url, params=params)
     response.raise_for_status()
@@ -111,10 +111,10 @@ def get_attachments(response):
     return attachments
 
 
-def publish_comic(comic_id, token):
+def publish_comic(comic_id, token, group_id):
     comic, filepath = download_comic(comic_id)
-    server_response = upload_photo_to_server(filepath, token)
-    album_response = upload_photo_to_album(server_response, token)
+    server_response = upload_photo_to_server(filepath, token, group_id)
+    album_response = upload_photo_to_album(server_response, token, group_id)
     attachments = get_attachments(album_response)
     message = comic['alt']
     post_response = upload_photo_to_wall(message, attachments, token)
@@ -134,8 +134,9 @@ def get_random_comic_id():
 def main():
     load_dotenv()
     token = os.getenv('ACCESS_TOKEN')
+    group_id = os.getenv('GROUP_ID')
     comic_id = get_random_comic_id()
-    response = publish_comic(comic_id, token)
+    response = publish_comic(comic_id, token, group_id)
     print(response)
 
 
