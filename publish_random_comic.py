@@ -45,16 +45,6 @@ def download_comic(comic_id):
     return comic, filepath
 
 
-def upload_photo(photo_path, upload_url):
-    with open(photo_path, 'rb') as file:
-        files = {
-            'photo': file,
-        }
-        response = requests.post(upload_url, files=files)
-        response.raise_for_status()
-    return response.json()
-
-
 def upload_photo_to_server(filepath, token, group_id):
     upload_url = get_upload_url(token, group_id)
     with open(filepath, 'rb') as file:
