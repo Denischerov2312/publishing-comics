@@ -1,6 +1,5 @@
 import os
 import random
-from pathlib import Path, PurePosixPath
 from os.path import split, splitext
 from urllib.parse import unquote, urlsplit
 
@@ -104,6 +103,13 @@ def get_attachments(response):
     return attachments
 
 
+def upload_comic(comic_id, token, group_id):
+    comic, filepath = download_comic(comic_id)
+    server_response = upload_photo_to_server(filepath, token, group_id)
+    album_response = upload_photo_to_album(server_response, token, group_id)
+    return comic, album_response
+
+
 def publish_comic(comic_id, token, group_id):
     comic, filepath = download_comic(comic_id)
     server_response = upload_photo_to_server(filepath, token, group_id)
@@ -111,8 +117,7 @@ def publish_comic(comic_id, token, group_id):
     attachments = get_attachments(album_response)
     message = comic['alt']
     post_response = upload_photo_to_wall(message, attachments, token)
-    os.remove(filepath)
-    return post_response
+    return post_response, filepath
 
 
 def get_random_comic_id():
@@ -126,10 +131,13 @@ def get_random_comic_id():
 
 def main():
     load_dotenv()
-    token = os.getenv('ACCESS_TOKEN')
-    group_id = os.getenv('GROUP_ID')
+    token = os.environ['ACCESS_TOKEN']
+    group_id = os.environ['GROUP_ID']
     comic_id = get_random_comic_id()
-    response = publish_comic(comic_id, token, group_id)
+    try:
+        response, filepath = publish_comic(comic_id, token, group_id)
+    finally:
+        os.remove(filepath)
     print(response)
 
 
