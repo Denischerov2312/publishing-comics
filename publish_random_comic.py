@@ -19,7 +19,7 @@ def get_upload_url(token, group_id):
     return response.json()['response']['upload_url']
 
 
-def determine_file_extension(url):
+def get_file_extension(url):
     filepath = unquote(urlsplit(url).path)
     file_extension = splitext(split(filepath)[1])[1]
     return file_extension
@@ -39,30 +39,30 @@ def download_comic(comic_id):
     response.raise_for_status()
     comic = response.json()
     image_url = comic['img']
-    extension = determine_file_extension(image_url)
+    extension = get_file_extension(image_url)
     filepath = f"{comic['safe_title']}{extension}"
     download_picture(image_url, filepath)
     return comic, filepath
 
 
-def upload_photo_to_server(filepath, token, group_id):
-    upload_url = get_upload_url(token, group_id)
+def upload_photo_to_server(filepath, upload_url):
     with open(filepath, 'rb') as file:
         files = {
             'photo': file
             }
         response = requests.post(upload_url, files=files)
     response.raise_for_status()
-    return response.json()
+    args = response.json()
+    return args['photo'], args['hash'], args['server']
 
 
-def upload_photo_to_album(args, token, group_id):
+def upload_photo_to_album(photo, hash, server, token, group_id):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     params = {
-        'photo': args['photo'],
+        'photo': photo,
         'access_token': token,
-        'hash': args['hash'],
-        'server': args['server'],
+        'hash': hash,
+        'server': server,
         'v': '5.131',
         'group_id': group_id,
     }
@@ -93,21 +93,12 @@ def get_attachments(response):
     return attachments
 
 
-def upload_comic(comic_id, token, group_id):
-    comic, filepath = download_comic(comic_id)
-    server_response = upload_photo_to_server(filepath, token, group_id)
-    album_response = upload_photo_to_album(server_response, token, group_id)
-    return comic, album_response
-
-
-def publish_comic(comic_id, token, group_id):
-    comic, filepath = download_comic(comic_id)
-    server_response = upload_photo_to_server(filepath, token, group_id)
-    album_response = upload_photo_to_album(server_response, token, group_id)
+def publish_comic(photo, hash, server, token, group_id, comic):
+    album_response = upload_photo_to_album(photo, hash, server, token, group_id)
     attachments = get_attachments(album_response)
     message = comic['alt']
     post_response = upload_photo_to_wall(message, attachments, token)
-    return post_response, filepath
+    return post_response
 
 
 def get_random_comic_id():
@@ -125,10 +116,13 @@ def main():
     group_id = os.environ['GROUP_ID']
     comic_id = get_random_comic_id()
     try:
-        response, filepath = publish_comic(comic_id, token, group_id)
+        comic, filepath = download_comic(comic_id)
+        upload_url = get_upload_url(token, group_id)
+        photo, hash, server = upload_photo_to_server(filepath, upload_url)
+        post_response = publish_comic(photo, hash, server, token, group_id, comic)
     finally:
         os.remove(filepath)
-    print(response)
+    print(post_response)
 
 
 if __name__ == '__main__':
