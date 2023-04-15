@@ -56,7 +56,7 @@ def upload_photo_to_server(filepath, upload_url):
     return args['photo'], args['hash'], args['server']
 
 
-def upload_photo_to_album(photo, hash, server, token, group_id):
+def add_photo_to_album(photo, hash, server, token, group_id):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     params = {
         'photo': photo,
@@ -71,7 +71,7 @@ def upload_photo_to_album(photo, hash, server, token, group_id):
     return response.json()
 
 
-def upload_photo_to_wall(message, attachments, token):
+def add_photo_to_wall(message, attachments, token):
     url = 'https://api.vk.com/method/wall.post'
     params = {
         'v': '5.131',
@@ -94,10 +94,10 @@ def get_attachments(response):
 
 
 def publish_comic(photo, hash, server, token, group_id, comic):
-    album_response = upload_photo_to_album(photo, hash, server, token, group_id)
+    album_response = add_photo_to_album(photo, hash, server, token, group_id)
     attachments = get_attachments(album_response)
     message = comic['alt']
-    post_response = upload_photo_to_wall(message, attachments, token)
+    post_response = add_photo_to_wall(message, attachments, token)
     return post_response
 
 
