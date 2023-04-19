@@ -9,7 +9,7 @@ Python3 должен быть уже установлен.
 pip install -r requirements.txt
 ```
 
-Рядом с самим скриптом надо создать файл `.env` и вписать туда `CLIENT_ID`, `ACCESS_TOKEN` и `GROUP_ID`
+Рядом с самим скриптом надо создать файл `.env` и вписать туда `VK_CLIENT_ID`, `VK_ACCESS_TOKEN` и `VK_GROUP_ID`
 Пример:
 ```
 VK_CLIENT_ID=97e702019727020597e70201a054f5c4308997e797e70201f41216935340f9cc7d49e89c
