@@ -56,12 +56,12 @@ def upload_photo_to_server(filepath, upload_url):
     return args['photo'], args['hash'], args['server']
 
 
-def add_photo_to_album(photo, hash, server, token, group_id):
+def add_photo_to_album(photo, vk_hash, server, token, group_id):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     params = {
         'photo': photo,
         'access_token': token,
-        'hash': hash,
+        'hash': vk_hash,
         'server': server,
         'v': '5.131',
         'group_id': group_id,
@@ -93,8 +93,8 @@ def get_attachments(response):
     return attachments
 
 
-def publish_comic(photo, hash, server, token, group_id, comic):
-    album_response = add_photo_to_album(photo, hash, server, token, group_id)
+def publish_comic(photo, vk_hash, server, token, group_id, comic):
+    album_response = add_photo_to_album(photo, vk_hash, server, token, group_id)
     attachments = get_attachments(album_response)
     message = comic['alt']
     post_response = add_photo_to_wall(message, attachments, token)
@@ -118,8 +118,8 @@ def main():
     try:
         comic, filepath = download_comic(comic_id)
         upload_url = get_upload_url(token, group_id)
-        photo, hash, server = upload_photo_to_server(filepath, upload_url)
-        post_response = publish_comic(photo, hash, server, token, group_id, comic)
+        photo, vk_hash, server = upload_photo_to_server(filepath, upload_url)
+        post_response = publish_comic(photo, vk_hash, server, token, group_id, comic)
     finally:
         os.remove(filepath)
     print(post_response)
