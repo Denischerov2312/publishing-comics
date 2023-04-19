@@ -112,8 +112,8 @@ def get_random_comic_id():
 
 def main():
     load_dotenv()
-    token = os.environ['ACCESS_TOKEN']
-    group_id = os.environ['GROUP_ID']
+    token = os.environ['VK_ACCESS_TOKEN']
+    group_id = os.environ['VK_GROUP_ID']
     comic_id = get_random_comic_id()
     try:
         comic, filepath = download_comic(comic_id)
