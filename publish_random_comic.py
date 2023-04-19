@@ -71,13 +71,13 @@ def add_photo_to_album(photo, vk_hash, server, token, group_id):
     return response.json()
 
 
-def add_photo_to_wall(message, attachments, token):
+def add_photo_to_wall(message, attachments, token, group_id):
     url = 'https://api.vk.com/method/wall.post'
     params = {
         'v': '5.131',
         'access_token': token,
-        'owner_id': -218983997,
-        'from_group': 0,
+        'owner_id': f"-{group_id}",
+        'from_group': 1,
         'message': message,
         'attachments': attachments,
     }
@@ -96,7 +96,7 @@ def get_attachments(response):
 def publish_comic(photo, vk_hash, server, token, group_id, message):
     album_response = add_photo_to_album(photo, vk_hash, server, token, group_id)
     attachments = get_attachments(album_response)
-    post_response = add_photo_to_wall(message, attachments, token)
+    post_response = add_photo_to_wall(message, attachments, token, group_id)
     return post_response
 
 
