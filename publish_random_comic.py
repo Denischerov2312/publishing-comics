@@ -93,10 +93,9 @@ def get_attachments(response):
     return attachments
 
 
-def publish_comic(photo, vk_hash, server, token, group_id, comic):
+def publish_comic(photo, vk_hash, server, token, group_id, message):
     album_response = add_photo_to_album(photo, vk_hash, server, token, group_id)
     attachments = get_attachments(album_response)
-    message = comic['alt']
     post_response = add_photo_to_wall(message, attachments, token)
     return post_response
 
@@ -117,9 +116,10 @@ def main():
     comic_id = get_random_comic_id()
     try:
         comic, filepath = download_comic(comic_id)
+        message = comic['alt']
         upload_url = get_upload_url(token, group_id)
         photo, vk_hash, server = upload_photo_to_server(filepath, upload_url)
-        post_response = publish_comic(photo, vk_hash, server, token, group_id, comic)
+        post_response = publish_comic(photo, vk_hash, server, token, group_id, message)
     finally:
         os.remove(filepath)
     print(post_response)
